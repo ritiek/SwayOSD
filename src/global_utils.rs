@@ -99,6 +99,9 @@ pub(crate) fn handle_application_args(
 				};
 				(ArgTypes::DeviceName, Some(value))
 			}
+			"gradual" => {
+                (ArgTypes::BrightnessGradual, None)
+			}
 			"top-margin" => {
 				let value = child.value().str().unwrap_or("").trim();
 				match value.parse::<f32>() {

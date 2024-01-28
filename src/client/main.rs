@@ -126,6 +126,14 @@ fn main() -> Result<(), glib::Error> {
 		Some("raise|lower|(±)number"),
 	);
 	app.add_main_option(
+		"gradual",
+		glib::Char::from(0),
+		OptionFlags::NONE,
+		OptionArg::None,
+		"Raises or lowers brightness gradually",
+		None,
+	);
+	app.add_main_option(
 		"max-volume",
 		glib::Char::from(0),
 		OptionFlags::NONE,

@@ -1,4 +1,4 @@
-use blight::{Device, Direction};
+use blight::{Device, Direction, Delay};
 
 use super::{BrightnessBackend, BrightnessBackendConstructor};
 
@@ -28,12 +28,26 @@ impl BrightnessBackend for Blight {
 		Ok(self.device.write_value(val)?)
 	}
 
+	fn lower_gradual(&mut self, by: u32) -> anyhow::Result<()> {
+		let val = self.device.calculate_change(by, Direction::Dec);
+		Ok(self.device.sweep_write(val, Delay::default())?)
+	}
+
 	fn raise(&mut self, by: u32) -> anyhow::Result<()> {
 		let val = self.device.calculate_change(by, Direction::Inc);
 		Ok(self.device.write_value(val)?)
 	}
 
+	fn raise_gradual(&mut self, by: u32) -> anyhow::Result<()> {
+		let val = self.device.calculate_change(by, Direction::Inc);
+		Ok(self.device.sweep_write(val, Delay::default())?)
+	}
+
 	fn set(&mut self, val: u32) -> anyhow::Result<()> {
 		Ok(self.device.write_value(val)?)
+	}
+
+	fn set_gradual(&mut self, val: u32) -> anyhow::Result<()> {
+		Ok(self.device.sweep_write(val, Delay::default())?)
 	}
 }

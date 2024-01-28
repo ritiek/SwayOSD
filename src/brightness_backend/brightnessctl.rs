@@ -62,6 +62,7 @@ impl VirtualDevice {
 	fn command(&self, arg: CliArg) -> Command {
 		let mut cmd = Command::new("brightnessctl");
 
+        dbg!(&self.name);
 		if let Some(name) = &self.name {
 			cmd.arg("--device").arg(name);
 		}
@@ -141,6 +142,46 @@ impl BrightnessBackend for BrightnessCtl {
 		self.device.set_percent(curr.saturating_sub(by))
 	}
 
+	fn lower_gradual(&mut self, by: u32) -> anyhow::Result<()> {
+		let curr = self.get_current();
+		let max = self.get_max();
+
+		let curr = curr * 100 / max;
+        let delay = std::time::Duration::from_millis(900);
+
+        dbg!(by);
+
+        // std::thread::sleep(delay);
+
+        // while !(current == value
+        //     || value > self.max
+        //     || (current == 0 && dir == Direction::Dec)
+        //     || (current == self.max && dir == Direction::Inc))
+        // {
+        //     match dir {
+        //         Direction::Inc => {
+        //             if (current + rate) > value {
+        //                 rate = value - current;
+        //             }
+        //             current += rate;
+        //         }
+        //         Direction::Dec => {
+        //             if rate > current {
+        //                 rate = current;
+        //             } else if (current - rate) < value {
+        //                 rate = current - value;
+        //             }
+        //             current -= rate;
+        //         }
+        //     }
+        //     bfile.rewind().map_err(BlibError::SweepError)?;
+        //     write!(bfile, "{current}").map_err(BlibError::SweepError)?;
+        //     thread::sleep(*delay);
+        // }
+
+		self.device.set_percent(curr.saturating_sub(by))
+	}
+
 	fn raise(&mut self, by: u32) -> anyhow::Result<()> {
 		let curr = self.get_current();
 		let max = self.get_max();
@@ -150,7 +191,20 @@ impl BrightnessBackend for BrightnessCtl {
 		self.device.set_percent(curr + by)
 	}
 
+	fn raise_gradual(&mut self, by: u32) -> anyhow::Result<()> {
+		let curr = self.get_current();
+		let max = self.get_max();
+
+		let curr = curr * 100 / max;
+
+		self.device.set_percent(curr + by)
+	}
+
 	fn set(&mut self, val: u32) -> anyhow::Result<()> {
+		self.device.set_percent(val)
+	}
+
+	fn set_gradual(&mut self, val: u32) -> anyhow::Result<()> {
 		self.device.set_percent(val)
 	}
 }

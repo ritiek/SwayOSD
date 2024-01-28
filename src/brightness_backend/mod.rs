@@ -23,8 +23,11 @@ pub trait BrightnessBackend {
 	fn get_max(&mut self) -> u32;
 
 	fn lower(&mut self, by: u32) -> anyhow::Result<()>;
+	fn lower_gradual(&mut self, by: u32) -> anyhow::Result<()>;
 	fn raise(&mut self, by: u32) -> anyhow::Result<()>;
+	fn raise_gradual(&mut self, by: u32) -> anyhow::Result<()>;
 	fn set(&mut self, val: u32) -> anyhow::Result<()>;
+	fn set_gradual(&mut self, val: u32) -> anyhow::Result<()>;
 }
 
 #[allow(dead_code)]

@@ -19,6 +19,7 @@ pub enum ArgTypes {
 	BrightnessRaise = 8,
 	BrightnessLower = 9,
 	BrightnessSet = 12,
+	BrightnessGradual = 13,
 	NumLock = 10,
 	ScrollLock = 11,
 }
@@ -38,6 +39,7 @@ impl fmt::Display for ArgTypes {
 			ArgTypes::BrightnessRaise => "BRIGHTNESS-RAISE",
 			ArgTypes::BrightnessLower => "BRIGHTNESS-LOWER",
 			ArgTypes::BrightnessSet => "BRIGHTNESS-SET",
+			ArgTypes::BrightnessGradual => "BRIGHTNESS-GRADUAL",
 			ArgTypes::NumLock => "NUM-LOCK",
 			ArgTypes::ScrollLock => "SCROLL-LOCK",
 			ArgTypes::DeviceName => "DEVICE-NAME",
@@ -62,6 +64,7 @@ impl str::FromStr for ArgTypes {
 			"BRIGHTNESS-RAISE" => ArgTypes::BrightnessRaise,
 			"BRIGHTNESS-LOWER" => ArgTypes::BrightnessLower,
 			"BRIGHTNESS-SET" => ArgTypes::BrightnessSet,
+			"BRIGHTNESS-GRADUAL" => ArgTypes::BrightnessGradual,
 			"MAX-VOLUME" => ArgTypes::MaxVolume,
 			"NUM-LOCK" => ArgTypes::NumLock,
 			"SCROLL-LOCK" => ArgTypes::ScrollLock,

@@ -252,8 +252,9 @@ impl SwayOSDApplication {
 			}
 			// TODO: Brightness
 			(ArgTypes::BrightnessRaise, step) => {
+                let method = get_brightness_change_method();
 				if let Ok(mut brightness_backend) =
-					change_brightness(BrightnessChangeType::Raise, step)
+					change_brightness(BrightnessChangeType::Raise, step, method)
 				{
 					for window in osd_app.windows.borrow().to_owned() {
 						window.changed_brightness(brightness_backend.as_mut());
@@ -261,8 +262,9 @@ impl SwayOSDApplication {
 				}
 			}
 			(ArgTypes::BrightnessLower, step) => {
+                let method = get_brightness_change_method();
 				if let Ok(mut brightness_backend) =
-					change_brightness(BrightnessChangeType::Lower, step)
+					change_brightness(BrightnessChangeType::Lower, step, method)
 				{
 					for window in osd_app.windows.borrow().to_owned() {
 						window.changed_brightness(brightness_backend.as_mut());
@@ -270,13 +272,17 @@ impl SwayOSDApplication {
 				}
 			}
 			(ArgTypes::BrightnessSet, value) => {
+                let method = get_brightness_change_method();
 				if let Ok(mut brightness_backend) =
-					change_brightness(BrightnessChangeType::Set, value)
+					change_brightness(BrightnessChangeType::Set, value, method)
 				{
 					for window in osd_app.windows.borrow().to_owned() {
 						window.changed_brightness(brightness_backend.as_mut());
 					}
 				}
+			}
+			(ArgTypes::BrightnessGradual, _) => {
+                set_brightness_change_method(BrightnessChangeMethod::Gradual);
 			}
 			(ArgTypes::CapsLock, value) => {
 				let i32_value = value.clone().unwrap_or("-1".to_owned());

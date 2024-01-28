@@ -21,6 +21,8 @@ lazy_static! {
 	static ref MAX_VOLUME: Mutex<u8> = Mutex::new(PRIV_MAX_VOLUME_DEFAULT);
 	pub static ref DEVICE_NAME_DEFAULT: &'static str = "default";
 	static ref DEVICE_NAME: Mutex<Option<String>> = Mutex::new(None);
+	// pub static ref BRIGHTNESS_CHANGE_METHOD_DEFAULT: BrightnessChangeMethod = BrightnessChangeMethod::Exact;
+	pub static ref BRIGHTNESS_CHANGE_METHOD: Mutex<BrightnessChangeMethod> = Mutex::new(BrightnessChangeMethod::Exact);
 	pub static ref TOP_MARGIN_DEFAULT: f32 = 0.85_f32;
 	static ref TOP_MARGIN: Mutex<f32> = Mutex::new(*TOP_MARGIN_DEFAULT);
 }
@@ -75,6 +77,15 @@ pub fn set_device_name(name: String) {
 pub fn reset_device_name() {
 	let mut global_name = DEVICE_NAME.lock().unwrap();
 	*global_name = None;
+}
+
+pub fn get_brightness_change_method() -> BrightnessChangeMethod {
+	(*BRIGHTNESS_CHANGE_METHOD.lock().unwrap()).clone()
+}
+
+pub fn set_brightness_change_method(method: BrightnessChangeMethod) {
+	let mut brightness_change_method = BRIGHTNESS_CHANGE_METHOD.lock().unwrap();
+	*brightness_change_method = method;
 }
 
 pub fn get_key_lock_state(key: KeysLocks, led: Option<String>) -> bool {
@@ -144,6 +155,12 @@ pub enum BrightnessChangeType {
 	Raise,
 	Lower,
 	Set,
+}
+
+#[derive(Clone)]
+pub enum BrightnessChangeMethod {
+	Exact,
+	Gradual,
 }
 
 pub fn change_device_volume(
@@ -328,21 +345,33 @@ pub fn change_device_volume(
 pub fn change_brightness(
 	change_type: BrightnessChangeType,
 	step: Option<String>,
+    method: BrightnessChangeMethod,
 ) -> brightness_backend::BrightnessBackendResult {
 	const BRIGHTNESS_CHANGE_DELTA: u8 = 5;
 	let value = step.unwrap_or_default().parse::<u8>();
 
 	let mut backend = brightness_backend::get_preferred_backend(get_device_name())?;
 
-	match change_type {
-		BrightnessChangeType::Raise => {
-			backend.raise(value.unwrap_or(BRIGHTNESS_CHANGE_DELTA) as u32)?
-		}
-		BrightnessChangeType::Lower => {
-			backend.lower(value.unwrap_or(BRIGHTNESS_CHANGE_DELTA) as u32)?
-		}
-		BrightnessChangeType::Set => backend.set(value.unwrap() as u32)?,
-	};
+    match method {
+        BrightnessChangeMethod::Exact => match change_type {
+            BrightnessChangeType::Raise => {
+                backend.raise(value.unwrap_or(BRIGHTNESS_CHANGE_DELTA) as u32)?
+            }
+            BrightnessChangeType::Lower => {
+                backend.lower(value.unwrap_or(BRIGHTNESS_CHANGE_DELTA) as u32)?
+            }
+            BrightnessChangeType::Set => backend.set(value.unwrap() as u32)?,
+        },
+        BrightnessChangeMethod::Gradual => match change_type {
+            BrightnessChangeType::Raise => {
+                backend.raise_gradual(value.unwrap_or(BRIGHTNESS_CHANGE_DELTA) as u32)?
+            }
+            BrightnessChangeType::Lower => {
+                backend.lower_gradual(value.unwrap_or(BRIGHTNESS_CHANGE_DELTA) as u32)?
+            }
+            BrightnessChangeType::Set => backend.set_gradual(value.unwrap() as u32)?,
+        },
+    }
 
 	Ok(backend)
 }
